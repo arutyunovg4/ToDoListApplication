@@ -1,12 +1,13 @@
 package ru.arutyunovg4.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.arutyunovg4.dao.RecordDao;
 import ru.arutyunovg4.entity.Record;
 import ru.arutyunovg4.entity.RecordStatus;
 import ru.arutyunovg4.entity.dto.RecordsContainerDto;
+import ru.arutyunovg4.repository.RecordRepository;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,17 +15,17 @@ import java.util.List;
 @Service
 @Transactional
 public class RecordService {
-    private final RecordDao recordDao;
+    private final RecordRepository recordRepository;
 
     @Autowired
-    public RecordService(RecordDao recordDao) {
-        this.recordDao = recordDao;
+    public RecordService(RecordRepository recordRepository) {
+        this.recordRepository = recordRepository;
     }
 
     @Transactional(readOnly = true)
     public RecordsContainerDto findAllRecords(String filterMode) {
 
-        List<Record> records = recordDao.findAllRecords();
+        List<Record> records = recordRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
         int numberOfDoneRecords = (int) records.stream().filter(r -> r.getStatus() == RecordStatus.DONE).count();
         int numberOfActiveRecords = (int) records.stream().filter(r -> r.getStatus() == RecordStatus.ACTIVE).count();
 
@@ -37,6 +38,7 @@ public class RecordService {
                 .toList();
 
         if (allowedFilterModes.contains(filterModeInUpperCase)) {
+
             List<Record> filteredRecords = records.stream()
                     .filter(record -> record.getStatus() == RecordStatus.valueOf(filterModeInUpperCase))
                     .toList();
@@ -49,15 +51,15 @@ public class RecordService {
 
     public void saveRecord(String title) {
         if (title != null && !title.isBlank()) {
-            recordDao.saveRecord(new Record(title));
+            recordRepository.save(new Record(title));
         }
     }
 
     public void updateRecordStatus(int id, RecordStatus newStatus) {
-        recordDao.updateRecordStatus(id, newStatus);
+        recordRepository.update(id, newStatus);
     }
 
     public void deleteRecord(int id) {
-        recordDao.deleteRecord(id);
+        recordRepository.deleteById(id);
     }
 }
