@@ -57,6 +57,7 @@ public class RecordService {
 
     public void updateRecordStatus(int id, RecordStatus newStatus) {
         recordRepository.update(id, newStatus);
+        throw new IllegalArgumentException();
     }
 
     public void deleteRecord(int id) {

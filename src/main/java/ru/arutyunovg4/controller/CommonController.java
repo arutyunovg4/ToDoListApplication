@@ -2,6 +2,7 @@ package ru.arutyunovg4.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +20,8 @@ public class CommonController {
     public CommonController(RecordService recordService) {
         this.recordService = recordService;
     }
+
+
 
     @RequestMapping("/")
     public String redirectToMainPage() {
@@ -62,4 +65,6 @@ public class CommonController {
         recordService.deleteRecord(id);
         return "redirect:/home" + (filterMode != null && !filterMode.isBlank() ? "?filter=" + filterMode :"");
     }
+
+
 }
