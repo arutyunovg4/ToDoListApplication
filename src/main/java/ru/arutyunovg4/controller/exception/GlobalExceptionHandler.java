@@ -1,4 +1,4 @@
-package ru.arutyunovg4.controller;
+package ru.arutyunovg4.controller.exception;
 
 import org.springframework.boot.webmvc.error.ErrorController;
 import org.springframework.stereotype.Controller;
@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @ControllerAdvice
 public class GlobalExceptionHandler implements ErrorController { // отключает обработчик по умолчанию от спринг бута
 
-    @RequestMapping("/error-page")
+    @RequestMapping("/error")
     public String getErrorPage(){
-        return "error-page";
+        return "public/error/error-page";
     }
 
-    @ExceptionHandler(Throwable.class)
-    public String handleThrowable(Throwable throwable){
-        return "redirect:/error";
-    }
+//    @ExceptionHandler(Throwable.class)
+//    public String handleThrowable(Throwable throwable){
+//        return "redirect:/error";
+//    }
 }
