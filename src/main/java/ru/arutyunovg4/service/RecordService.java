@@ -6,31 +6,37 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.arutyunovg4.entity.Record;
 import ru.arutyunovg4.entity.RecordStatus;
+import ru.arutyunovg4.entity.User;
 import ru.arutyunovg4.entity.dto.RecordsContainerDto;
 import ru.arutyunovg4.repository.RecordRepository;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
 @Transactional
 public class RecordService {
+    private final UserService userService;
     private final RecordRepository recordRepository;
 
     @Autowired
-    public RecordService(RecordRepository recordRepository) {
+    public RecordService(UserService userService, RecordRepository recordRepository) {
+        this.userService = userService;
         this.recordRepository = recordRepository;
     }
 
     @Transactional(readOnly = true)
     public RecordsContainerDto findAllRecords(String filterMode) {
-
-        List<Record> records = recordRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+        User user = userService.getCurrentUser();
+        List<Record> records = user.getRecords().stream()
+                .sorted(Comparator.comparing(Record::getId))
+                .toList();
         int numberOfDoneRecords = (int) records.stream().filter(r -> r.getStatus() == RecordStatus.DONE).count();
         int numberOfActiveRecords = (int) records.stream().filter(r -> r.getStatus() == RecordStatus.ACTIVE).count();
 
         if (filterMode == null || filterMode.isBlank())
-            return new RecordsContainerDto(records, numberOfDoneRecords, numberOfActiveRecords);
+            return new RecordsContainerDto(user.getName(),records, numberOfDoneRecords, numberOfActiveRecords);
 
         String filterModeInUpperCase = filterMode.toUpperCase();
         List<String> allowedFilterModes = Arrays.stream(RecordStatus.values())
@@ -42,16 +48,17 @@ public class RecordService {
             List<Record> filteredRecords = records.stream()
                     .filter(record -> record.getStatus() == RecordStatus.valueOf(filterModeInUpperCase))
                     .toList();
-            return new RecordsContainerDto(filteredRecords, numberOfDoneRecords, numberOfActiveRecords);
+            return new RecordsContainerDto(user.getName(),filteredRecords, numberOfDoneRecords, numberOfActiveRecords);
         } else {
-            return new RecordsContainerDto(records, numberOfDoneRecords, numberOfActiveRecords);
+            return new RecordsContainerDto(user.getName(),records, numberOfDoneRecords, numberOfActiveRecords);
         }
 
     }
 
     public void saveRecord(String title) {
         if (title != null && !title.isBlank()) {
-            recordRepository.save(new Record(title));
+            User user = userService.getCurrentUser();
+            recordRepository.save(new Record(title, user));
         }
     }
 

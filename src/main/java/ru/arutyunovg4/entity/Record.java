@@ -20,9 +20,14 @@ public class Record {
     public Record() {
     }
 
-    public Record(String title) {
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    public Record(String title, User user) {
         this.title = title;
         this.status = RecordStatus.ACTIVE;
+        this.user = user;
     }
 
     public int getId() {
@@ -47,5 +52,13 @@ public class Record {
 
     public void setStatus(RecordStatus status) {
         this.status = status;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
