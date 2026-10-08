@@ -40,10 +40,12 @@ public class SecurityConfig {
                         .requestMatchers("/", "/login", "/registration", "/error", "/css/**", "/js/**", "/images/**").permitAll()
 
                         // Доступ к аккаунту для USER и ADMIN
-                        .requestMatchers("/account/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/account/**").hasAnyRole("SUPER_ADMIN","USER", "ADMIN")
 
                         // Доступ к админке только для ADMIN
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasAnyRole("SUPER_ADMIN","ADMIN")
+
+                        .requestMatchers("/super-admin/**").hasRole("SUPER_ADMIN")
 
                         // Все остальные запросы требуют аутентификации
                         .anyRequest().authenticated()
